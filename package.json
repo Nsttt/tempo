@@ -11,7 +11,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "deploy": "cf deploy"
   },
   "dependencies": {
     "@effect/ui": "https://pkg.pr.new/Effect-TS/ui/@effect/ui@61b40b4",
@@ -19,8 +20,10 @@
     "effect": "^4.1.6"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "2.0.0-rc.5",
     "@effect/vitest": "^4.1.6",
     "@tailwindcss/vite": "^4.3.5",
+    "cf": "1.0.0-rc.2",
     "tailwindcss": "^4.3.5",
     "typescript": "^7.0.2",
     "vite": "^8.3.8",

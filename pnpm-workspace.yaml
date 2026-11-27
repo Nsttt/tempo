@@ -1,3 +1,6 @@
 minimumReleaseAgeExclude:
   - effect@4.1.6
   - '@effect/vitest@4.1.6'
+allowBuilds:
+  esbuild: true
+  workerd: true
