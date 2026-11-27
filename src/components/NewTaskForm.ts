@@ -75,53 +75,53 @@ export const NewTaskForm = Html.component({
     return h.form
       .attr("aria-label", "Add a task")
       .attr("novalidate", "")
-      .class("flex flex-col gap-3")
+      .class("flex flex-col gap-4")
       .on("submit", NewTaskFormMessage.SubmittedForm())
       .children(
         Field(h, {
           key: "title",
           props: fieldValidationProps(title),
           view: (field) =>
-            field.root(h.div.class("flex flex-col gap-1.5")).children(
+            field.root(h.div.class("flex flex-col gap-2")).children(
               field.label(h.label).class("sr-only").children("Task"),
-              h.div.class("flex gap-2").children(
+              h.div.class("flex").children(
                 Input(h, {
                   element: field.control(h.input),
                   props: { value: title.value },
                   onUpdate: ({ value }) => NewTaskFormMessage.UpdatedTitle({ value })
                 })
-                  .attr("placeholder", "What are you working on?")
+                  .attr("placeholder", "New task title")
                   .attr("autocomplete", "off")
                   .class(
-                    "min-w-0 flex-1 rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-stone-100 placeholder:text-stone-500",
-                    "focus:border-white/30 focus:outline-none data-invalid:border-rose-400/70"
+                    "h-12 min-w-0 flex-1 border border-dim bg-transparent px-4 text-sm text-ink placeholder:text-mute",
+                    "transition-colors duration-150 focus:border-ink focus:outline-none data-invalid:border-focus"
                   ),
                 Button(h, { props: { type: "submit" } })
                   .class(
-                    "rounded-xl bg-stone-100 px-4 py-2.5 text-sm font-semibold text-stone-950 transition cursor-pointer hover:bg-white"
+                    "caps -ml-px h-12 border border-ink px-5 text-xs text-ink transition-colors duration-150 cursor-pointer hover:bg-ink hover:text-ground"
                   )
                   .children("Add")
               ),
               title._tag === "Invalid" &&
-                field.error(h.p)?.class("text-sm text-rose-300").children(title.errors[0])
+                field.error(h.p)?.class("text-xs text-focus").children(title.errors[0])
             )
         }),
-        h.div.class("flex items-center gap-3 text-sm text-stone-400").children(
-          h.span.id(h.id("estimate-label")).children("Estimate"),
+        h.div.class("flex items-center gap-4").children(
+          h.span.id(h.id("estimate-label")).class("caps text-[10px] text-mute").children("Est. sessions"),
           EstimateToggleGroup(h, {
             props: { value: [model.estimate], items: estimateItems },
             onEmit: ({ value }) => NewTaskFormMessage.ToggledEstimate({ value }),
             view: (toggleGroup) =>
               toggleGroup
-                .root(h.div.class("flex gap-1").attr("aria-labelledby", h.id("estimate-label")))
+                .root(h.div.class("flex").attr("aria-labelledby", h.id("estimate-label")))
                 .children(
                   ESTIMATES.map((value) =>
                     toggleGroup
                       .item({
                         element: h.button
                           .class(
-                            "size-8 rounded-lg border border-white/10 font-mono text-xs text-stone-400 transition cursor-pointer hover:text-stone-100",
-                            "aria-pressed:border-rose-300/60 aria-pressed:bg-rose-400/15 aria-pressed:text-rose-200"
+                            "num -ml-px grid size-8 place-items-center border border-dim text-[11px] text-mute transition-colors duration-150 cursor-pointer first:ml-0 hover:text-ink",
+                            "aria-pressed:z-10 aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-ground"
                           )
                           .attr("aria-label", `${value} session${value === "1" ? "" : "s"}`),
                         value
@@ -129,8 +129,7 @@ export const NewTaskForm = Html.component({
                       .children(value)
                   )
                 )
-          }),
-          h.span.class("text-xs text-stone-500").children("× 25 min")
+          })
         )
       )
   }

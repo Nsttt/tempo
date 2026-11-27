@@ -4,13 +4,14 @@ import {
   nextPhase,
   Phase,
   PHASE_LABEL,
+  PHASE_MINUTES,
   PHASES,
   untilLongBreak
 } from "#domain/Phase"
 import { Command, Component, Head, Subscription, UiSchema } from "@effect/ui"
 import { Button, makeToggleGroup } from "@effect/ui-kit"
 import { Html, HtmlSubscription } from "@effect/ui/html"
-import { Clock, Duration, Effect, Schema, Stream } from "effect"
+import { Array, Clock, Duration, Effect, Schema, Stream } from "effect"
 import { Chime } from "../services/Chime.ts"
 
 export const TimerStatus = Schema.Literals(["Idle", "Running", "Paused"])
@@ -19,7 +20,10 @@ export type TimerStatus = typeof TimerStatus.Type
 export const TimerProps = Schema.Struct({
   /** Finished focus sessions so far, which decides short or long breaks. */
   completedFocus: Schema.Number,
-  taskTitle: Schema.NullOr(Schema.String)
+  taskTitle: Schema.NullOr(Schema.String),
+  catalogNo: Schema.NullOr(Schema.String),
+  /** Open tasks in the catalog, so the no-task line can say what to do. */
+  openTasks: Schema.Number
 })
 
 export const TimerModel = Schema.Struct({
@@ -46,8 +50,8 @@ export const TimerMessage = UiSchema.TaggedEnum({
 export type TimerMessage = typeof TimerMessage.Type
 
 export const TimerEvents = UiSchema.TaggedEnum({
-  /** A phase ran to zero. Skipped phases don't report. */
-  Finished: { phase: Phase, minutes: Schema.Number }
+  /** A phase ran to zero at `endedAt`. Skipped phases don't report. */
+  Finished: { phase: Phase, minutes: Schema.Number, endedAt: Schema.Number }
 })
 
 export class PlayChime extends Command.Service<PlayChime>()(
@@ -84,22 +88,11 @@ const toggle = (model: TimerModel): TimerModel =>
 const skip = (model: TimerModel): TimerModel =>
   fresh(model.phase === "Focus" ? "ShortBreak" : "Focus")
 
-const ACCENT: Record<Phase, { readonly stroke: string; readonly text: string; readonly button: string }> = {
-  Focus: {
-    stroke: "#fb7185",
-    text: "text-rose-300",
-    button: "bg-rose-400 text-stone-950 enabled:hover:bg-rose-300"
-  },
-  ShortBreak: {
-    stroke: "#34d399",
-    text: "text-emerald-300",
-    button: "bg-emerald-400 text-stone-950 enabled:hover:bg-emerald-300"
-  },
-  LongBreak: {
-    stroke: "#38bdf8",
-    text: "text-sky-300",
-    button: "bg-sky-400 text-stone-950 enabled:hover:bg-sky-300"
-  }
+/** Each phase owns one Factory code colour: a fill for blocks, a text tone for words. */
+const CODE: Record<Phase, { readonly fill: string; readonly text: string }> = {
+  Focus: { fill: "bg-focus", text: "text-focus" },
+  ShortBreak: { fill: "bg-short", text: "text-short-text" },
+  LongBreak: { fill: "bg-long", text: "text-long" }
 }
 
 const SHORTCUTS = [" ", "r", "s"].map((key) => ({
@@ -107,35 +100,7 @@ const SHORTCUTS = [" ", "r", "s"].map((key) => ({
   message: TimerMessage.PressedKey({ key })
 }))
 
-const Ring = <M>(h: Html.H<M>, model: TimerModel) => {
-  const radius = 140
-  const circumference = 2 * Math.PI * radius
-  const elapsed = 1 - model.remainingMs / durationMs(model.phase)
-  return h.svg
-    .class("absolute inset-0 size-full -rotate-90")
-    .attrs({ viewBox: "0 0 320 320", "aria-hidden": "true" })
-    .children(
-      h.circle.attrs({
-        cx: "160",
-        cy: "160",
-        r: String(radius),
-        fill: "none",
-        stroke: "rgb(255 255 255 / 0.07)",
-        "stroke-width": "10"
-      }),
-      h.circle.class("ring-arc").attrs({
-        cx: "160",
-        cy: "160",
-        r: String(radius),
-        fill: "none",
-        stroke: ACCENT[model.phase].stroke,
-        "stroke-width": "10",
-        "stroke-linecap": "round",
-        "stroke-dasharray": String(circumference),
-        "stroke-dashoffset": String(circumference * (1 - elapsed))
-      })
-    )
-}
+const SHORT_LABEL: Record<Phase, string> = { Focus: "Focus", ShortBreak: "Short", LongBreak: "Long" }
 
 const STATUS_TEXT: Record<TimerStatus, string> = {
   Idle: "Ready",
@@ -143,8 +108,35 @@ const STATUS_TEXT: Record<TimerStatus, string> = {
   Paused: "Paused"
 }
 
-const SECONDARY_BUTTON =
-  "rounded-full border border-white/10 px-4 py-2 text-sm text-stone-300 transition cursor-pointer enabled:hover:border-white/25 enabled:hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
+const Icon = <M>(h: Html.H<M>, d: string) =>
+  h.svg
+    .class("size-4 shrink-0")
+    .attrs({ viewBox: "0 0 16 16", fill: "currentColor", "aria-hidden": "true" })
+    .children(h.path.attr("d", d))
+
+const PLAY = "M4 2.5v11l9-5.5z"
+const PAUSE = "M4 2.5h3v11H4zM9 2.5h3v11H9z"
+
+/** One block per minute of the phase: spent minutes white, the current one coded. */
+const MinuteReadout = <M>(h: Html.H<M>, model: TimerModel) => {
+  const total = PHASE_MINUTES[model.phase]
+  const elapsedMs = durationMs(model.phase) - model.remainingMs
+  const spent = Math.floor(elapsedMs / 60_000)
+  const started = model.status !== "Idle" || elapsedMs > 0
+  return h.div
+    .class("flex h-3 gap-[3px]")
+    .attr("aria-hidden", "true")
+    .children(
+      Array.makeBy(total, (i) =>
+        h.span.class(
+          "flex-1 transition-colors duration-150",
+          i < spent ? "bg-ink" : i === spent && started ? CODE[model.phase].fill : "bg-rule"
+        ))
+    )
+}
+
+const SECONDARY =
+  "caps flex h-12 items-center gap-2 border border-dim px-5 text-xs text-ink transition-colors duration-150 cursor-pointer enabled:hover:border-ink disabled:cursor-not-allowed disabled:text-mute disabled:border-rule"
 
 export const TimerNoDeps = Html.component({
   name: "Timer",
@@ -183,7 +175,7 @@ export const TimerNoDeps = Html.component({
       const finished = model.phase
       const completedFocus = $.props.completedFocus + (finished === "Focus" ? 1 : 0)
       return $.set(fresh(nextPhase(finished, completedFocus)))
-        .emit(TimerEvents.Finished({ phase: finished, minutes: durationMs(finished) / 60_000 }))
+        .emit(TimerEvents.Finished({ phase: finished, minutes: PHASE_MINUTES[finished], endedAt: now }))
         .run(PlayChime.make({ tone: finished === "Focus" ? "focus" : "break" }))
     }
   },
@@ -207,84 +199,110 @@ export const TimerNoDeps = Html.component({
 
   view: (h, model) => {
     const props = h.props
-    const accent = ACCENT[model.phase]
+    const code = CODE[model.phase]
     const running = model.status === "Running"
     const untouched = model.status === "Idle" && model.remainingMs === durationMs(model.phase)
     const breaksLeft = untilLongBreak(props.completedFocus)
 
     return h.section
-      .class(
-        "relative flex flex-col items-center gap-8 rounded-3xl border border-white/5 bg-stone-900/60 px-6 py-8 sm:px-10 sm:py-10"
-      )
+      .class("flex flex-col gap-5 border-b border-rule px-5 py-6 sm:px-10 sm:py-7")
       .attr("aria-label", "Timer")
       .children(
-        PhaseToggleGroup(h, {
-          props: { value: [model.phase], items: phaseItems },
-          onEmit: ({ value }) => TimerMessage.ToggledPhase({ value }),
-          view: (toggleGroup) =>
-            toggleGroup
-              .root(h.div.class("flex gap-1 rounded-full bg-black/30 p-1").attr("aria-label", "Phase"))
-              .children(
-                PHASES.map((value) =>
-                  toggleGroup
-                    .item({
-                      element: h.button.class(
-                        "rounded-full px-3.5 py-1.5 text-sm text-stone-400 transition cursor-pointer hover:text-stone-100",
-                        "aria-pressed:bg-white/10 aria-pressed:text-white"
-                      ),
-                      value
-                    })
-                    .children(PHASE_LABEL[value])
+        h.div.class("flex flex-wrap items-center justify-between gap-4").children(
+          PhaseToggleGroup(h, {
+            props: { value: [model.phase], items: phaseItems },
+            onEmit: ({ value }) => TimerMessage.ToggledPhase({ value }),
+            view: (toggleGroup) =>
+              toggleGroup
+                .root(h.div.class("flex border border-rule").attr("aria-label", "Phase"))
+                .children(
+                  PHASES.map((value) =>
+                    toggleGroup
+                      .item({
+                        element: h.button.class(
+                          "caps flex h-10 items-center gap-2.5 whitespace-nowrap px-3 text-[11px] text-mute transition-colors duration-150 cursor-pointer sm:px-4",
+                          "hover:text-ink aria-pressed:bg-ink aria-pressed:text-ground"
+                        ),
+                        value
+                      })
+                      .children(
+                        h.span.class("size-2.5 shrink-0", CODE[value].fill).attr("aria-hidden", "true"),
+                        // Phones get the one-word name so the toggle stays on one row.
+                        h.span.class("sm:hidden").attr("aria-hidden", "true").children(SHORT_LABEL[value]),
+                        h.span.class("max-sm:sr-only").children(PHASE_LABEL[value])
+                      )
+                  )
                 )
-              )
-        }),
-
-        h.div.class("relative grid size-72 place-items-center sm:size-80").children(
-          Ring(h, model),
-          h.div.class("relative flex flex-col items-center gap-1").children(
-            h.p
-              .class("font-mono text-6xl font-semibold tabular-nums tracking-tight sm:text-7xl")
-              .attr("role", "timer")
-              .attr("aria-label", `${formatClock(model.remainingMs)} left`)
-              .children(formatClock(model.remainingMs)),
-            h.p.class("text-xs uppercase tracking-[0.2em]", accent.text).children(
-              `${PHASE_LABEL[model.phase]} · ${STATUS_TEXT[model.status]}`
-            )
+          }),
+          h.p.class("caps flex items-center gap-2.5 text-[11px]", running ? code.text : "text-mute").children(
+            h.span.class("size-2", running ? code.fill : "bg-dim").attr("aria-hidden", "true"),
+            STATUS_TEXT[model.status]
           )
         ),
 
-        h.p.class("min-h-6 max-w-xs truncate text-center text-stone-300").children(
-          model.phase === "Focus"
-            ? props.taskTitle === null
-              ? h.span.class("text-stone-500").children("Pick a task to focus on")
-              : h.span.children(h.span.class("text-stone-500").children("Focusing on "), props.taskTitle)
-            : h.span.class("text-stone-400").children("Step away, breathe, stretch.")
+        h.p
+          .class(
+            "wide font-light leading-[0.8] tracking-[-0.03em] tabular-nums text-[5.5rem] sm:text-[9rem] xl:text-[10.5rem]"
+          )
+          .attr("role", "timer")
+          .attr("aria-label", `${formatClock(model.remainingMs)} left in ${PHASE_LABEL[model.phase]}`)
+          .children(formatClock(model.remainingMs)),
+
+        MinuteReadout(h, model),
+
+        h.div.class("flex flex-wrap items-end justify-between gap-6").children(
+          h.div.class("min-w-0 max-w-xl").children(
+            model.phase !== "Focus"
+              ? h.p.class("caps text-sm text-mute").children("Break. Step away from the screen.")
+              : props.taskTitle === null
+              ? h.p.class("caps text-sm text-mute").children(
+                props.openTasks === 0 ? "No task. Add one to the catalog." : "No task. Pick one from the catalog."
+              )
+              : h.p.class("flex min-w-0 flex-col gap-2").children(
+                // The catalog mark, set like the number on a sleeve.
+                h.span.class("wide font-light leading-none tracking-[0.04em] text-3xl text-focus sm:text-5xl")
+                  .children(props.catalogNo ?? ""),
+                h.span.class("caps truncate text-sm text-ink").children(props.taskTitle)
+              )
+          ),
+          h.div.class("grid w-full grid-cols-[auto_auto_minmax(0,1fr)] gap-2 sm:flex sm:w-auto sm:items-center").children(
+            Button(h, { props: { disabled: untouched }, onPress: TimerMessage.ClickedReset() })
+              .class(SECONDARY)
+              .children("Reset"),
+            Button(h, { onPress: TimerMessage.ClickedSkip() })
+              .class(SECONDARY)
+              .children("Skip"),
+            Button(h, { onPress: running ? TimerMessage.ClickedPause() : TimerMessage.ClickedStart() })
+              .class(
+                "caps flex h-12 items-stretch border border-ink sm:min-w-44 text-xs text-ink transition-colors duration-150 cursor-pointer hover:bg-ink/10"
+              )
+              .children(
+                h.span.class("flex flex-1 items-center gap-3 px-5").children(
+                  Icon(h, running ? PAUSE : PLAY),
+                  running ? "Pause" : model.status === "Paused" ? "Resume" : "Start"
+                ),
+                h.span.class("w-4", code.fill).attr("aria-hidden", "true")
+              )
+          )
         ),
 
-        h.div.class("flex items-center gap-3").children(
-          Button(h, { props: { disabled: untouched }, onPress: TimerMessage.ClickedReset() })
-            .class(SECONDARY_BUTTON)
-            .children("Reset"),
-          Button(h, { onPress: running ? TimerMessage.ClickedPause() : TimerMessage.ClickedStart() })
-            .class(
-              "min-w-32 rounded-full px-8 py-3 text-base font-semibold shadow-lg shadow-black/30 transition cursor-pointer",
-              accent.button
-            )
-            .children(running ? "Pause" : model.status === "Paused" ? "Resume" : "Start"),
-          Button(h, { onPress: TimerMessage.ClickedSkip() })
-            .class(SECONDARY_BUTTON)
-            .children("Skip")
-        ),
-
-        h.p.class("text-xs text-stone-500").children(
-          breaksLeft === 1 ? "Long break after this session" : `Long break in ${breaksLeft} sessions`,
-          " · ",
-          h.kbd.class("font-mono text-stone-400").children("Space"),
-          " start/pause · ",
-          h.kbd.class("font-mono text-stone-400").children("R"),
-          " reset · ",
-          h.kbd.class("font-mono text-stone-400").children("S"),
-          " skip"
+        h.p.class("caps flex flex-wrap items-center gap-x-5 gap-y-2 text-[10px] text-mute").children(
+          h.span.children(
+            breaksLeft === 1 ? "Long break after this session" : `Long break in ${breaksLeft} sessions`
+          ),
+          h.span.class("hidden items-center gap-2 sm:flex").children(
+            h.kbd.class("num border border-dim px-1.5 py-0.5 text-[10px] normal-case tracking-normal text-ink")
+              .children("Space"),
+            "Start / pause"
+          ),
+          h.span.class("hidden items-center gap-2 sm:flex").children(
+            h.kbd.class("num border border-dim px-1.5 py-0.5 text-[10px] tracking-normal text-ink").children("R"),
+            "Reset"
+          ),
+          h.span.class("hidden items-center gap-2 sm:flex").children(
+            h.kbd.class("num border border-dim px-1.5 py-0.5 text-[10px] tracking-normal text-ink").children("S"),
+            "Skip"
+          )
         )
       )
   }

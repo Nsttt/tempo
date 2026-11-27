@@ -5,7 +5,7 @@ import { Effect } from "effect"
 import { PlayChime, Timer, TimerEvents, TimerMessage } from "./Timer.ts"
 
 const MINUTE = 60_000
-const props = { completedFocus: 0, taskTitle: "Write the launch post" }
+const props = { completedFocus: 0, taskTitle: "Write the launch post", catalogNo: "TMP 01", openTasks: 1 }
 const hasClock = (keys: ReadonlyArray<string>) => keys.some((key) => key.startsWith("clock"))
 
 describe("Timer", () => {
@@ -53,7 +53,7 @@ describe("Timer", () => {
         .send(TimerMessage.Ticked({ now: 25 * MINUTE }))
         .expectExact(PlayChime)
       assert.deepStrictEqual(s.pending[0]?.command.args, { tone: "focus" })
-      s.emitted(TimerEvents.Finished({ phase: "Focus", minutes: 25 }))
+      s.emitted(TimerEvents.Finished({ phase: "Focus", minutes: 25, endedAt: 25 * MINUTE }))
         .resolve(PlayChime, Component.noop)
       assert.deepStrictEqual(s.model, { phase: "ShortBreak", status: "Idle", remainingMs: 5 * MINUTE, lastTickAt: null })
     }))
@@ -64,7 +64,7 @@ describe("Timer", () => {
       s.send(TimerMessage.ClickedStart())
         .send(TimerMessage.Ticked({ now: 0 }))
         .send(TimerMessage.Ticked({ now: 30 * MINUTE }))
-        .emitted(TimerEvents.Finished({ phase: "Focus", minutes: 25 }))
+        .emitted(TimerEvents.Finished({ phase: "Focus", minutes: 25, endedAt: 30 * MINUTE }))
         .resolve(PlayChime, Component.noop)
       assert.strictEqual(s.model.phase, "LongBreak")
       assert.strictEqual(s.model.remainingMs, 15 * MINUTE)
