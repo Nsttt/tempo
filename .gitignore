@@ -4,3 +4,8 @@ dist
 *.log
 .cloudflare
 .wrangler
+
+# Impeccable scratch (sketches, captures, caches); the design record stays tracked.
+.impeccable/*
+!.impeccable/design.json
+!.impeccable/surfaces/

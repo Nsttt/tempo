@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-27T09:00:00Z",
+  "title": "Design System: Tempo",
+  "extensions": {
+    "colorMeta": {
+      "ground": { "role": "neutral", "displayName": "Matte Black", "canonical": "#0b0b0a", "tonalRamp": ["#0b0b0a", "#262623", "#3a3a36", "#5c5c57", "#8f8f88", "#b4b3ad", "#d6d5cf", "#f1f0ea"] },
+      "rule": { "role": "neutral", "displayName": "Graphite Rule", "canonical": "#262623", "tonalRamp": ["#0b0b0a", "#262623", "#3a3a36", "#5c5c57", "#8f8f88", "#b4b3ad", "#d6d5cf", "#f1f0ea"] },
+      "dim": { "role": "neutral", "displayName": "Dim Graphite", "canonical": "#3a3a36", "tonalRamp": ["#0b0b0a", "#262623", "#3a3a36", "#5c5c57", "#8f8f88", "#b4b3ad", "#d6d5cf", "#f1f0ea"] },
+      "mute": { "role": "neutral", "displayName": "Muted Ink", "canonical": "#8f8f88", "tonalRamp": ["#0b0b0a", "#262623", "#3a3a36", "#5c5c57", "#8f8f88", "#b4b3ad", "#d6d5cf", "#f1f0ea"] },
+      "ink": { "role": "neutral", "displayName": "Sleeve White", "canonical": "#f1f0ea", "tonalRamp": ["#0b0b0a", "#262623", "#3a3a36", "#5c5c57", "#8f8f88", "#b4b3ad", "#d6d5cf", "#f1f0ea"] },
+      "focus": { "role": "primary", "displayName": "Factory Red", "canonical": "#e5322d", "tonalRamp": ["#2e0a09", "#561312", "#8a1e1b", "#bd2824", "#e5322d", "#ee6c68", "#f5a6a3", "#fbdedd"] },
+      "short": { "role": "secondary", "displayName": "Factory Blue", "canonical": "#3f6ee6", "tonalRamp": ["#0c1630", "#16295a", "#244290", "#3f6ee6", "#5f88ec", "#7a9cf2", "#b3c7f7", "#e2e9fc"] },
+      "short-text": { "role": "secondary", "displayName": "Signal Blue Text", "canonical": "#7a9cf2", "tonalRamp": ["#0c1630", "#16295a", "#244290", "#3f6ee6", "#5f88ec", "#7a9cf2", "#b3c7f7", "#e2e9fc"] },
+      "long": { "role": "tertiary", "displayName": "Factory Yellow", "canonical": "#e8b21c", "tonalRamp": ["#2e2306", "#57420b", "#8c6a12", "#c09218", "#e8b21c", "#efc85e", "#f5dd9d", "#fbf1d8"] }
+    },
+    "typographyMeta": {
+      "countdown": { "displayName": "Countdown", "purpose": "Remaining time only, one per screen. 5.5rem on phones, 9rem from 640px, 10.5rem from 1280px." },
+      "catalog-mark": { "displayName": "Catalog Mark", "purpose": "The active task's catalog number under the minute readout, in Factory Red. 1.875rem on phones, 3rem from 640px." },
+      "wordmark": { "displayName": "Wordmark", "purpose": "TEMPO in the header only." },
+      "title": { "displayName": "Title", "purpose": "Section headings and button labels, uppercase." },
+      "body": { "displayName": "Body", "purpose": "Task titles, input text, empty states, alert copy; captions at 0.75rem." },
+      "label": { "displayName": "Label", "purpose": "Uppercase field names, phase tabs, status, shortcut legend, in muted ink. 10-11px." },
+      "numeric": { "displayName": "Numeric", "purpose": "Martian Mono for times, counts, catalog numbers, hour axis and key caps." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "state-change", "value": "150ms cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Colour and border transitions on controls, minute blocks and links." },
+      { "name": "log-rise", "value": "d 600ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "A finished session's pulse rising on today's focus-log line. Disabled under prefers-reduced-motion. Safari lacks CSS d transitions, so there the pulse appears without the rise." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Start / Pause / Resume, with the current phase's code colour as an end block.",
+      "html": "<button class=\"ds-btn-primary\"><span class=\"ds-btn-primary-label\"><svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M4 2.5v11l9-5.5z\"/></svg>Start</span><span class=\"ds-btn-primary-end\" aria-hidden=\"true\"></span></button>",
+      "css": ".ds-btn-primary { display: flex; align-items: stretch; height: 48px; min-width: 176px; padding: 0; border: 1px solid var(--color-ink, #f1f0ea); border-radius: 0; background: transparent; color: var(--color-ink, #f1f0ea); font-family: Archivo, ui-sans-serif, sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.18em; cursor: pointer; transition: background-color 150ms; } .ds-btn-primary-label { display: flex; flex: 1; align-items: center; gap: 12px; padding: 0 20px; } .ds-btn-primary-end { width: 16px; background: var(--color-focus, #e5322d); } .ds-btn-primary:hover { background: rgba(241, 240, 234, 0.1); } .ds-btn-primary:focus-visible { outline: 1px solid var(--color-ink, #f1f0ea); outline-offset: 3px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Reset and Skip: dim outline, ink border on hover, muted when disabled.",
+      "html": "<button class=\"ds-btn-secondary\">Reset</button>",
+      "css": ".ds-btn-secondary { display: flex; align-items: center; height: 48px; padding: 0 20px; border: 1px solid var(--color-dim, #3a3a36); border-radius: 0; background: transparent; color: var(--color-ink, #f1f0ea); font-family: Archivo, ui-sans-serif, sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.18em; cursor: pointer; transition: border-color 150ms, color 150ms; } .ds-btn-secondary:hover:enabled { border-color: var(--color-ink, #f1f0ea); } .ds-btn-secondary:disabled { color: var(--color-mute, #8f8f88); border-color: var(--color-rule, #262623); cursor: not-allowed; } .ds-btn-secondary:focus-visible { outline: 1px solid var(--color-ink, #f1f0ea); outline-offset: 3px; }"
+    },
+    {
+      "name": "Task Input with Add",
+      "kind": "input",
+      "refersTo": "input-text",
+      "description": "Outlined title field butted against the Add button; red caret, ink border on focus.",
+      "html": "<div class=\"ds-add\"><input class=\"ds-input\" placeholder=\"New task title\" /><button class=\"ds-btn-add\">Add</button></div>",
+      "css": ".ds-add { display: flex; } .ds-input { flex: 1; min-width: 0; height: 48px; padding: 0 16px; border: 1px solid var(--color-dim, #3a3a36); border-radius: 0; background: transparent; color: var(--color-ink, #f1f0ea); caret-color: var(--color-focus, #e5322d); font-family: Archivo, ui-sans-serif, sans-serif; font-size: 14px; transition: border-color 150ms; } .ds-input::placeholder { color: var(--color-mute, #8f8f88); } .ds-input:focus { outline: none; border-color: var(--color-ink, #f1f0ea); } .ds-input[aria-invalid=\"true\"] { border-color: var(--color-focus, #e5322d); } .ds-btn-add { margin-left: -1px; height: 48px; padding: 0 20px; border: 1px solid var(--color-ink, #f1f0ea); border-radius: 0; background: transparent; color: var(--color-ink, #f1f0ea); font-family: Archivo, ui-sans-serif, sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.18em; cursor: pointer; transition: background-color 150ms, color 150ms; } .ds-btn-add:hover { background: var(--color-ink, #f1f0ea); color: var(--color-ground, #0b0b0a); } .ds-btn-add:focus-visible { outline: 1px solid var(--color-ink, #f1f0ea); outline-offset: 3px; }"
+    },
+    {
+      "name": "Phase Tabs",
+      "kind": "nav",
+      "refersTo": "phase-tab",
+      "description": "Segmented phase selector: code-colour swatch per tab, selected tab inverted.",
+      "html": "<div class=\"ds-tabs\"><button class=\"ds-tab\" aria-pressed=\"true\"><span class=\"ds-swatch\" style=\"background:#e5322d\"></span>Focus</button><button class=\"ds-tab\" aria-pressed=\"false\"><span class=\"ds-swatch\" style=\"background:#3f6ee6\"></span>Short break</button><button class=\"ds-tab\" aria-pressed=\"false\"><span class=\"ds-swatch\" style=\"background:#e8b21c\"></span>Long break</button></div>",
+      "css": ".ds-tabs { display: inline-flex; border: 1px solid var(--color-rule, #262623); } .ds-tab { display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 16px; border: 0; border-radius: 0; background: transparent; color: var(--color-mute, #8f8f88); font-family: Archivo, ui-sans-serif, sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; white-space: nowrap; cursor: pointer; transition: color 150ms, background-color 150ms; } .ds-tab:hover { color: var(--color-ink, #f1f0ea); } .ds-tab[aria-pressed=\"true\"] { background: var(--color-ink, #f1f0ea); color: var(--color-ground, #0b0b0a); } .ds-tab:focus-visible { outline: 1px solid var(--color-ink, #f1f0ea); outline-offset: 3px; } .ds-swatch { width: 10px; height: 10px; flex-shrink: 0; }"
+    },
+    {
+      "name": "Estimate Cells",
+      "kind": "chip",
+      "refersTo": "estimate-cell",
+      "description": "Five square mono cells sharing hairline edges; selected cell inverted.",
+      "html": "<div class=\"ds-cells\"><button class=\"ds-cell\" aria-pressed=\"true\">1</button><button class=\"ds-cell\">2</button><button class=\"ds-cell\">3</button><button class=\"ds-cell\">4</button><button class=\"ds-cell\">5</button></div>",
+      "css": ".ds-cells { display: flex; } .ds-cell { position: relative; display: grid; place-items: center; width: 32px; height: 32px; margin-left: -1px; border: 1px solid var(--color-dim, #3a3a36); border-radius: 0; background: transparent; color: var(--color-mute, #8f8f88); font-family: 'Martian Mono', ui-monospace, monospace; font-size: 11px; cursor: pointer; transition: color 150ms, background-color 150ms; } .ds-cell:first-child { margin-left: 0; } .ds-cell:hover { color: var(--color-ink, #f1f0ea); } .ds-cell[aria-pressed=\"true\"] { z-index: 1; border-color: var(--color-ink, #f1f0ea); background: var(--color-ink, #f1f0ea); color: var(--color-ground, #0b0b0a); } .ds-cell:focus-visible { outline: 1px solid var(--color-ink, #f1f0ea); outline-offset: 3px; }"
+    },
+    {
+      "name": "Task Row",
+      "kind": "card",
+      "refersTo": "task-row",
+      "description": "Catalog row: checkbox, catalog number, title, session strip, delete. Active row outlined red.",
+      "html": "<ul class=\"ds-rows\"><li class=\"ds-row ds-row-active\"><span class=\"ds-check\"></span><span class=\"ds-row-body\"><span class=\"ds-no\">TMP 01</span><span class=\"ds-title\">Write the launch post</span><span class=\"ds-strip\"><i class=\"on\"></i><i class=\"on\"></i><i></i></span></span><button class=\"ds-del\" aria-label=\"Delete\"><svg viewBox=\"0 0 16 16\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"square\"><path d=\"M4 4l8 8M12 4l-8 8\"/></svg></button></li><li class=\"ds-row\"><span class=\"ds-check\"></span><span class=\"ds-row-body\"><span class=\"ds-no\">TMP 02</span><span class=\"ds-title\">Review open pull requests</span><span class=\"ds-strip\"><i></i><i></i></span></span><button class=\"ds-del\" aria-label=\"Delete\"><svg viewBox=\"0 0 16 16\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"square\"><path d=\"M4 4l8 8M12 4l-8 8\"/></svg></button></li></ul>",
+      "css": ".ds-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; } .ds-row { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 12px; padding: 12px; margin-top: -1px; border: 1px solid var(--color-rule, #262623); } .ds-row:first-child { margin-top: 0; } .ds-row-active { position: relative; z-index: 1; border-color: var(--color-focus, #e5322d); } .ds-check { width: 20px; height: 20px; border: 1px solid var(--color-dim, #3a3a36); } .ds-row-body { display: grid; grid-template-columns: auto minmax(0,1fr); align-items: baseline; gap: 8px 12px; } .ds-no { font-family: 'Martian Mono', ui-monospace, monospace; font-size: 11px; color: var(--color-mute, #8f8f88); } .ds-row-active .ds-no { color: var(--color-focus, #e5322d); } .ds-title { font-family: Archivo, ui-sans-serif, sans-serif; font-size: 14px; color: var(--color-ink, #f1f0ea); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-decoration-color: var(--color-dim, #3a3a36); text-underline-offset: 4px; } .ds-row:hover .ds-title { text-decoration-line: underline; } .ds-strip { grid-column: 2; display: flex; gap: 3px; } .ds-strip i { width: 10px; height: 10px; box-sizing: border-box; border: 1px solid var(--color-dim, #3a3a36); } .ds-strip i.on { border: 0; background: var(--color-ink, #f1f0ea); } .ds-del { display: grid; place-items: center; width: 32px; height: 32px; border: 0; background: transparent; color: var(--color-mute, #8f8f88); cursor: pointer; transition: color 150ms; } .ds-del:hover { color: var(--color-focus, #e5322d); } .ds-del:focus-visible { outline: 1px solid var(--color-ink, #f1f0ea); outline-offset: 3px; }"
+    },
+    {
+      "name": "Minute Readout",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "One block per minute of the phase: spent ink, current in the phase colour, remaining graphite.",
+      "html": "<div class=\"ds-readout\"><i class=\"spent\"></i><i class=\"spent\"></i><i class=\"now\"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>",
+      "css": ".ds-readout { display: flex; gap: 3px; height: 12px; width: 100%; } .ds-readout i { flex: 1; background: var(--color-rule, #262623); transition: background-color 150ms; } .ds-readout i.spent { background: var(--color-ink, #f1f0ea); } .ds-readout i.now { background: var(--color-focus, #e5322d); }"
+    },
+    {
+      "name": "Data Sheet",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Field-and-value rows between graphite rules: caps label, mono value right-aligned.",
+      "html": "<dl class=\"ds-sheet\"><div><dt>Cycle</dt><dd>4 / 4</dd></div><div><dt>Today</dt><dd>3 sessions · 1h 15m</dd></div><div><dt>Active days</dt><dd>10 / 14</dd></div></dl>",
+      "css": ".ds-sheet { margin: 0; display: flex; flex-direction: column; border-bottom: 1px solid var(--color-rule, #262623); } .ds-sheet div { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: baseline; gap: 16px; padding: 12px 0; border-top: 1px solid var(--color-rule, #262623); } .ds-sheet dt { font-family: Archivo, ui-sans-serif, sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--color-mute, #8f8f88); } .ds-sheet dd { margin: 0; text-align: right; font-family: 'Martian Mono', ui-monospace, monospace; font-size: 12px; color: var(--color-ink, #f1f0ea); }"
+    },
+    {
+      "name": "Focus Log",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Stacked day-lines, ground-filled so nearer days occlude older ones; today in front in ink with a red now tick.",
+      "html": "<figure class=\"ds-log\"><svg viewBox=\"0 0 1000 400\" preserveAspectRatio=\"none\"><path d=\"M0 300L380 300L400 230L420 300L1000 300L1000 400L0 400Z\" fill=\"#0b0b0a\"/><path d=\"M0 300L380 300L400 230L420 300L1000 300\" fill=\"none\" stroke=\"#8f8f88\" stroke-width=\"1\" vector-effect=\"non-scaling-stroke\"/><path class=\"ds-log-line\" d=\"M0 384L560 384L585 300L600 330L615 290L640 384L1000 384L1000 400L0 400Z\" fill=\"#0b0b0a\"/><path class=\"ds-log-line\" d=\"M0 384L560 384L585 300L600 330L615 290L640 384L1000 384\" fill=\"none\" stroke=\"#f1f0ea\" stroke-width=\"1.75\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/></svg><span class=\"ds-now\" style=\"left:42%\"></span><div class=\"ds-axis\"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div></figure>",
+      "css": ".ds-log { position: relative; margin: 0; } .ds-log svg { display: block; width: 100%; height: 200px; } .ds-log-line { transition: d 600ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-now { position: absolute; bottom: 22px; width: 1px; height: 20px; background: var(--color-focus, #e5322d); } .ds-axis { display: flex; justify-content: space-between; margin-top: 12px; font-family: 'Martian Mono', ui-monospace, monospace; font-size: 10px; color: var(--color-mute, #8f8f88); } @media (prefers-reduced-motion: reduce) { .ds-log-line { transition: none; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Catalog Sleeve",
+    "overview": "Tempo is set like a Factory Records sleeve in Peter Saville's manner: your focus is the record, each task carries a catalog number (TMP 01), and finished sessions are drawn as a stacked pulse plot, one hairline per day, that owns the lower half of the screen. The ground is matte black, structure comes only from 1px graphite rules, and every corner is square. The type does the dramatic work: a wide, light grotesk countdown large enough to read from across a desk, tracked engraved capitals for every label, and a monospace voice reserved for times, counts and catalog numbers.\n\nColour is an industrial code, not decoration. Red, blue and yellow each belong to a timer phase and appear only where they report state: the phase swatch, the current minute block, the primary button's end block, the running indicator, the active task. Everything else is white ink and graphite. The screen is dense but quiet, a working instrument rather than a dashboard of cards.\n\nMotion is minimal and functional: 150ms colour transitions for state, no entrance choreography. The one signature moment is the focus log, where a finished session's pulse rises on today's line.",
+    "keyCharacteristics": [
+      "Matte black ground, white ink, 1px graphite rules, no fills or shadows for structure.",
+      "Square corners everywhere; outlined controls.",
+      "Factory code colours (red, blue, yellow) carry phase and state only.",
+      "Wide light grotesk for the countdown, catalog mark and wordmark; tracked caps for labels; Martian Mono for numbers.",
+      "Block readouts: one square per minute, one square per session.",
+      "The focus log ridgeline as the signature data surface."
+    ],
+    "rules": [
+      { "name": "The Code Colour Rule", "body": "Red, blue and yellow report state and nothing else. Each phase owns one colour, applied as a fill for blocks and a text tone for words. If an element is not telling the user about a phase, an active selection, an overrun or an error, it is ink or graphite.", "section": "colors" },
+      { "name": "The Readable Code Rule", "body": "A code colour set as small text must clear contrast on the ground; when the fill tone cannot (blue), add a lighter text tone rather than dimming the meaning.", "section": "colors" },
+      { "name": "The Engraved Caps Rule", "body": "Every label is uppercase with 0.18em tracking. Sentence case is for content the user wrote and for explanatory copy only.", "section": "typography" },
+      { "name": "The Mono for Numbers Rule", "body": "Times, counts and catalog numbers are Martian Mono with tabular figures; the countdown alone is Archivo wide, also tabular.", "section": "typography" },
+      { "name": "The Ruled Sheet Rule", "body": "Structure is drawn with 1px graphite rules and outlines, never with shadows, tinted panels or gaps between cards.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do draw structure with 1px graphite (rule) lines and outlines, and keep every corner square (0px).",
+      "Do reserve Factory Red, Blue and Yellow for phase and state; use the short-text tone whenever the Short break colour is set as text.",
+      "Do set labels in uppercase Archivo with 0.18em tracking, and every time, count or catalog number in Martian Mono with tabular figures.",
+      "Do show progress as rows of small solid squares with a 3px gap: spent in ink, current in the phase colour, remaining in graphite.",
+      "Do invert selected controls to an ink fill with ground text instead of tinting them.",
+      "Do keep state transitions to 150ms colour changes, and honour reduced motion.",
+      "Do give every catalogued item a number in the TMP 01 form."
+    ],
+    "donts": [
+      "Don't add shadows, glows or tinted card panels; the only depth is the focus log's stacked lines.",
+      "Don't round corners or use pill shapes.",
+      "Don't use a code colour as decoration, background tint or brand accent where no state is being reported.",
+      "Don't replace the block readouts with a progress ring or a smooth progress bar.",
+      "Don't add entrance choreography; the pulse rising in the focus log is the one motion moment."
+    ]
+  }
+}
